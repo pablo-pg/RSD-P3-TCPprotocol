@@ -8,3 +8,8 @@ ftp_server: ClientConnection.cpp FTPServer.cpp ftp_server.cpp
 
 clean:
 	$(RM) ftp_server *~
+
+run: clean ftp_server
+	./ftp_server
+
+clear: clean
