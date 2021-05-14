@@ -61,7 +61,23 @@ ClientConnection::~ClientConnection() {
 
 int connect_TCP(uint32_t address, uint16_t port) {
   // Implement your code to define a socket here
+  struct sockaddr_in sin;
+  // struct hostent *hent;
+  int s;
 
+  memset(&sin, 0, sizeof(sin));
+  sin.sin_port = htons(port);
+  sin.sin_family = AF_INET;
+  sin.sin_addr.s_addr = address;
+
+  s = socket(AF_INET, SOCK_STREAM, 0);
+  if (s < 0) {
+    errexit("No se pudo crear el socket: %s\n", strerror(errno));
+  }
+  if (connect(s, (struct sockaddr*)&sin, sizeof(sin)) < 0) {
+    errexit("No se pudo conectar con %s: %s\n", address, strerror(errno));
+  }
+  return s;
   return -1;  // You must return the socket descriptor.
 }
 
@@ -83,6 +99,7 @@ void ClientConnection::WaitForRequests() {
   if (!ok) {
     return;
   }
+
 
   fprintf(fd, "220 Service ready\n");
 

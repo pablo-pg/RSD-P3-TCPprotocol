@@ -9,6 +9,8 @@
 
 #include "FTPServer.h"
 
+#include <iostream>
+
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -28,8 +30,28 @@
 
 int define_socket_TCP(int port) {
   // Include the code for defining the socket.
+  struct sockaddr_in sin;
+  int s;
 
-  return -1;
+  s = socket(AF_INET, SOCK_STREAM, 0);
+  if (s < 0) {
+    errexit("No se pudo crear el socket %s\n", strerror(errno));
+  }
+
+  memset(&sin, 0, sizeof(sin));
+  sin.sin_port = htons(port);
+  sin.sin_family = AF_INET;
+  sin.sin_addr.s_addr = INADDR_ANY;
+
+  if (bind(s, (struct sockaddr*)&sin, sizeof(sin)) < 0) {
+    errexit("No se pudo hacer bind con el puerto: %s\n", strerror(errno));
+  }
+
+  if (listen(s, 5) < 0) {
+    errexit("Falló el listen: %s\n", strerror(errno));
+  }
+
+  return s;
 }
 
 // This function is executed when the thread is executed.
