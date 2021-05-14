@@ -24,7 +24,7 @@
 #include <list>
 
 #include "ClientConnection.h"
-#include "common.h"
+#include "./common.h"
 
 int define_socket_TCP(int port) {
   // Include the code for defining the socket.

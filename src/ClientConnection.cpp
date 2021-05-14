@@ -52,7 +52,7 @@ ClientConnection::ClientConnection(int s) {
   ok = true;
   data_socket = -1;
   parar = false;
-};
+}
 
 ClientConnection::~ClientConnection() {
   fclose(fd);
@@ -113,23 +113,17 @@ void ClientConnection::WaitForRequests() {
       // To be implemented by students
     } else if (COMMAND("SYST")) {
       fprintf(fd, "215 UNIX Type: L8.\n");
-    }
-
-    else if (COMMAND("TYPE")) {
+    } else if (COMMAND("TYPE")) {
       fscanf(fd, "%s", arg);
       fprintf(fd, "200 OK\n");
-    }
-
-    else if (COMMAND("QUIT")) {
+    } else if (COMMAND("QUIT")) {
       fprintf(fd,
               "221 Service closing control connection. Logged out if "
               "appropriate.\n");
       close(data_socket);
       parar = true;
       break;
-    }
-
-    else {
+    } else {
       fprintf(fd, "502 Command not implemented.\n");
       fflush(fd);
       printf("Comando : %s %s\n", command, arg);
@@ -140,4 +134,4 @@ void ClientConnection::WaitForRequests() {
   fclose(fd);
 
   return;
-};
+}
