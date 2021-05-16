@@ -5,6 +5,9 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <sstream>
+#include <iomanip>
+#include <string>
 
 const int MAX_BUFF = 1000;
 

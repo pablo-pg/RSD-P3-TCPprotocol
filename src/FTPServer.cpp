@@ -38,6 +38,8 @@ int define_socket_TCP(int port) {
     errexit("No se pudo crear el socket %s\n", strerror(errno));
   }
 
+  std::cout << "PUERTO: " << port << std::endl;
+
   memset(&sin, 0, sizeof(sin));
   sin.sin_port = htons(port);
   sin.sin_family = AF_INET;

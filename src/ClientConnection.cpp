@@ -30,7 +30,7 @@
 #include <cstring>
 #include <iostream>
 
-#include "common.h"
+#include "./common.h"
 
 ClientConnection::ClientConnection(int s) {
   int sock = (int)(s);
@@ -62,7 +62,6 @@ ClientConnection::~ClientConnection() {
 int connect_TCP(uint32_t address, uint16_t port) {
   // Implement your code to define a socket here
   struct sockaddr_in sin;
-  // struct hostent *hent;
   int s;
 
   memset(&sin, 0, sizeof(sin));
@@ -77,8 +76,7 @@ int connect_TCP(uint32_t address, uint16_t port) {
   if (connect(s, (struct sockaddr*)&sin, sizeof(sin)) < 0) {
     errexit("No se pudo conectar con %s: %s\n", address, strerror(errno));
   }
-  return s;
-  return -1;  // You must return the socket descriptor.
+  return s;  // You must return the socket descriptor.
 }
 
 void ClientConnection::stop() {
@@ -99,13 +97,10 @@ void ClientConnection::WaitForRequests() {
   if (!ok) {
     return;
   }
-
-
   fprintf(fd, "220 Service ready\n");
-
   while (!parar) {
     fscanf(fd, "%s", command);
-    if (COMMAND("USER")) {
+    if (COMMAND("USER")) {      /// USER
       fscanf(fd, "%s", arg);
       fprintf(fd, "331 User name ok, need password\n");
     } else if (COMMAND("PWD")) {
@@ -118,8 +113,42 @@ void ClientConnection::WaitForRequests() {
         parar = true;
       }
 
-    } else if (COMMAND("PORT")) {
-      // To be implemented by students
+    } else if (COMMAND("PORT")) {   /// PORT (args = HOST-PORT)
+      fscanf(fd, "%s", arg);
+      std::string buf;
+      std::stringstream ss_arg(arg);
+      int values[6];
+      for (int  i = 0; i < 6; ++i) {
+        std::getline(ss_arg, buf, ',');
+        values[i] = std::stoi(buf);
+      }
+      std::stringstream ss_port;
+      ss_port << std::hex << values[4] << values[5];
+      // std::cout << "Puerto (hex): " << ss_port.str()  << std::endl;
+      uint16_t port;
+      ss_port >> std::hex >> port;
+      // std::cout << "Puerto (dec): " << port << std::endl;
+
+      std::stringstream ss_ip;
+      ss_ip << values[0] << "." << values[1] << "." << values[2] << "."
+            << values[3];
+      // std::cout << "IP (str) = " << ss_ip.str() << std::endl;
+      uint32_t ip;
+      inet_pton(AF_INET, ss_ip.str().c_str(), &ip);
+      std::cout << "IP: " << ip << std::endl;
+      std::cout << "PORT: " << port << std::endl;
+
+      data_socket = connect_TCP(ip, port);
+      FILE* fdata;
+      fdata = fdopen(data_socket, "a+");  // a+ escribir por el final
+        if (fdata == nullptr) {
+          std::cout << "Connection closed" << std::endl;
+          fclose(fdata);
+          close(data_socket);
+          fprintf(fd, "425 Connection failed\n");
+          ok = false;
+        }
+      fprintf(fd, "200 PORT OK.\n");
     } else if (COMMAND("PASV")) {
       // To be implemented by students
     } else if (COMMAND("STOR")) {
