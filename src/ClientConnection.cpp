@@ -149,15 +149,60 @@ void ClientConnection::WaitForRequests() {
           ok = false;
         }
       fprintf(fd, "200 PORT OK.\n");
-    } else if (COMMAND("PASV")) {   /// PASV
+    } else if (COMMAND("PASV")) {                   /// PASV
       uint16_t port;
       uint32_t ip;
-    } else if (COMMAND("STOR")) {   /// STOR
+    } else if (COMMAND("STOR")) {                   /// STOR
       // To be implemented by students
-    } else if (COMMAND("RETR")) {   /// RETR
-      // To be implemented by students
+    } else if (COMMAND("RETR")) {                   /// RETR
+      fscanf(fd, "%s", arg);
+      char buf[MAX_BUFF];
+      int retr_fd;
+      bool ok = 1;  //< Comprobación de transmisión.
+      FILE* fdata;
+      fdata = fdopen(data_socket, "a+");  // a+ escribir por el final
+  std::cout << "FILE TO GET: " << arg << std::endl;
+      retr_fd = open(arg, O_RDWR|O_CREAT, S_IRWXU);
+  std::cout << "FD: " << retr_fd << std::endl;
+      if (retr_fd < 0) {
+        std::cout << "Error al abrir el fichero" << std::endl;
+        fprintf(fd, "550 open error\n");
+      }
+      fprintf(fd, "150 File status okay; about to open data connection\n");
+      fflush(fd);
+      int data;
+      do {
+        data = read(retr_fd, buf, sizeof(buf));
+        std::cout << data << " bytes leídos" << std::endl;
+        if (data < 0) {
+          if (errno == EINTR) {
+            continue;
+          } else {
+            ok = 0;
+          }
+        }
+        if (write(data_socket, buf, data) < 0) {
+          ok = 0;
+          errexit("Error al escribir el fichero %s\n", errno);
+          break;
+        }
+      } while (data > 0);
+      // close(data_socket);
+      fclose(fdata);
+      if (close(retr_fd) < 0) {
+        errexit("Error closing the file", errno);
+      }
+      fflush(fd);
+      if (ok) {
+        fprintf(fd, "226 Closing data connection\n");
+        fflush(fd);
+      } else {
+        fprintf(fd, "550 file error\n");
+        fflush(fd);
+      }
+      fflush(fd);
+    } else if (COMMAND("LIST")) {                     /// LIST
 
-    } else if (COMMAND("LIST")) {   /// LIST
       fprintf(fd, "125 List started OK.\n");
       FILE* fdata;
       fdata = fdopen(data_socket, "a+");  // a+ escribir por el final
@@ -166,6 +211,7 @@ void ClientConnection::WaitForRequests() {
       getcwd(curdir, sizeof(curdir));
       std::cout << "LS DE: " << curdir << std::endl;
       str_curdir = curdir;
+      fcntl(data_socket, F_SETFL, O_NONBLOCK);
       // std::stringstream files;
       for (const auto& file : fs::directory_iterator(str_curdir)) {
         // files << file.path().filename().string() << "\n";
@@ -175,7 +221,8 @@ void ClientConnection::WaitForRequests() {
       // std::cout << files.str().data() << std::endl;
       fclose(fdata);
       // close(data_socket);
-      fprintf(fd, "250 List completed successfully");
+      fprintf(fd, "250 List completed successfully\n");
+      fflush(fd);
     } else if (COMMAND("SYST")) {
       fprintf(fd, "215 UNIX Type: L8.\n");
     } else if (COMMAND("TYPE")) {
