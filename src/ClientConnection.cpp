@@ -161,9 +161,8 @@ void ClientConnection::WaitForRequests() {
       bool ok = 1;  //< Comprobación de transmisión.
       FILE* fdata;
       fdata = fdopen(data_socket, "a+");  // a+ escribir por el final
-  std::cout << "FILE TO GET: " << arg << std::endl;
+      std::cout << "FILE TO GET: " << arg << std::endl;
       retr_fd = open(arg, O_RDWR|O_CREAT, S_IRWXU);
-  std::cout << "FD: " << retr_fd << std::endl;
       if (retr_fd < 0) {
         std::cout << "Error al abrir el fichero" << std::endl;
         fprintf(fd, "550 open error\n");
@@ -190,14 +189,14 @@ void ClientConnection::WaitForRequests() {
       // close(data_socket);
       fclose(fdata);
       if (close(retr_fd) < 0) {
-        errexit("Error closing the file", errno);
+        errexit("Error closing the file.", errno);
       }
       fflush(fd);
       if (ok) {
-        fprintf(fd, "226 Closing data connection\n");
+        fprintf(fd, "226 Closing data connection.\n");
         fflush(fd);
       } else {
-        fprintf(fd, "550 file error\n");
+        fprintf(fd, "550 file error.\n");
         fflush(fd);
       }
       fflush(fd);
@@ -212,16 +211,12 @@ void ClientConnection::WaitForRequests() {
       std::cout << "LS DE: " << curdir << std::endl;
       str_curdir = curdir;
       fcntl(data_socket, F_SETFL, O_NONBLOCK);
-      // std::stringstream files;
       for (const auto& file : fs::directory_iterator(str_curdir)) {
-        // files << file.path().filename().string() << "\n";
         fprintf(fdata, "%s\n", file.path().filename().string().data());
       }
-      // fprintf(fdata, "%s\n", files.str().data());
-      // std::cout << files.str().data() << std::endl;
       fclose(fdata);
       // close(data_socket);
-      fprintf(fd, "250 List completed successfully\n");
+      fprintf(fd, "250 List completed successfully.\n");
       fflush(fd);
     } else if (COMMAND("SYST")) {
       fprintf(fd, "215 UNIX Type: L8.\n");
