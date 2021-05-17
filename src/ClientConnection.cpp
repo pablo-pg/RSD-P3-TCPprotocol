@@ -149,14 +149,33 @@ void ClientConnection::WaitForRequests() {
           ok = false;
         }
       fprintf(fd, "200 PORT OK.\n");
-    } else if (COMMAND("PASV")) {
+    } else if (COMMAND("PASV")) {   /// PASV
+      uint16_t port;
+      uint32_t ip;
+    } else if (COMMAND("STOR")) {   /// STOR
       // To be implemented by students
-    } else if (COMMAND("STOR")) {
+    } else if (COMMAND("RETR")) {   /// RETR
       // To be implemented by students
-    } else if (COMMAND("RETR")) {
-      // To be implemented by students
-    } else if (COMMAND("LIST")) {
-      // To be implemented by students
+
+    } else if (COMMAND("LIST")) {   /// LIST
+      fprintf(fd, "125 List started OK.\n");
+      FILE* fdata;
+      fdata = fdopen(data_socket, "a+");  // a+ escribir por el final
+      std::string str_curdir;
+      char curdir[200];
+      getcwd(curdir, sizeof(curdir));
+      std::cout << "LS DE: " << curdir << std::endl;
+      str_curdir = curdir;
+      // std::stringstream files;
+      for (const auto& file : fs::directory_iterator(str_curdir)) {
+        // files << file.path().filename().string() << "\n";
+        fprintf(fdata, "%s\n", file.path().filename().string().data());
+      }
+      // fprintf(fdata, "%s\n", files.str().data());
+      // std::cout << files.str().data() << std::endl;
+      fclose(fdata);
+      // close(data_socket);
+      fprintf(fd, "250 List completed successfully");
     } else if (COMMAND("SYST")) {
       fprintf(fd, "215 UNIX Type: L8.\n");
     } else if (COMMAND("TYPE")) {

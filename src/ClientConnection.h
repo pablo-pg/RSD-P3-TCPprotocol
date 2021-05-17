@@ -2,12 +2,16 @@
 #define ClientConnection_H
 
 #include <pthread.h>
+#include <experimental/filesystem>
 
 #include <cstdint>
 #include <cstdio>
 #include <sstream>
 #include <iomanip>
 #include <string>
+#include <fstream>
+#include <iostream>
+namespace fs = std::experimental::filesystem;
 
 const int MAX_BUFF = 1000;
 
