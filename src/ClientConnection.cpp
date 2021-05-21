@@ -113,7 +113,6 @@ void ClientConnection::WaitForRequests() {
         fprintf(fd, "530 Not logged in.\n");
         parar = true;
       }
-
     } else if (COMMAND("PORT")) {               /// PORT (args = HOST-PORT)
       fscanf(fd, "%s", arg);
       std::string buf;
@@ -153,8 +152,52 @@ void ClientConnection::WaitForRequests() {
     } else if (COMMAND("PASV")) {                   /// PASV
       uint16_t port;
       uint32_t ip;
-    } else if (COMMAND("STOR")) {                   /// STOR
-      // To be implemented by students
+    } else if (COMMAND("STOR")) {                   /// STOR (args = FILE)
+      fscanf(fd, "%s", arg);
+      char buf[MAX_BUFF];
+      int stor_fd;
+      int data;
+      bool ok = 1;  //< Comprobación de transmisión.
+      FILE* fdata;
+      fdata = fdopen(data_socket, "a+");
+      std::cout << "FILE TO PUT: " << arg << std::endl;
+      stor_fd = open(arg, O_RDWR|O_CREAT, S_IRWXU);
+      if (stor_fd < 0) {
+        std::cout << "Error al abrir el fichero" << std::endl;
+        fprintf(fd, "550 open error\n");
+      }
+      fprintf(fd, "150 File creation okay; about to open data connection\n");
+      fflush(fd);
+      do {
+        data = read(data_socket, buf, sizeof(buf));
+        std::cout << data << " bytes leídos" << std::endl;
+        if (data < 0) {
+          if (errno == EINTR) {
+            continue;
+          } else {
+            ok = 0;
+          }
+        }
+        if (write(stor_fd, buf, data) < 0) {
+          ok = 0;
+          fprintf(fd,
+                "451 Requested action aborted. Local error in processing.\n");
+          errexit("Error al escribir el fichero %s\n", errno);
+          break;
+        }
+      }while(data > 0);
+      fclose(fdata);
+      close(stor_fd);
+      close(data_socket);
+      fflush(fd);
+      if (ok) {
+        fprintf(fd, "226 Closing data conection\n");
+        fflush(fd);
+      } else {
+        fprintf(fd, "550 file error.\n");
+        fflush(fd);
+      }
+      fflush(fd);
     } else if (COMMAND("RETR")) {                   /// RETR (args = FILE)
       fscanf(fd, "%s", arg);
       char buf[MAX_BUFF];
@@ -215,6 +258,8 @@ void ClientConnection::WaitForRequests() {
       fcntl(data_socket, F_SETFL, O_NONBLOCK);
       for (const auto& file : fs::directory_iterator(str_curdir)) {
         fprintf(fdata, "%s\n", file.path().filename().string().data());
+        fflush(fd);
+        fflush(fdata);
       }
       fclose(fdata);
       // close(data_socket);
