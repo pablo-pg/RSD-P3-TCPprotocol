@@ -22,4 +22,4 @@ inline void errexit(const char *format, ...) {
   exit(1);
 }
 
-#endif
+#endif  // COMMON_H

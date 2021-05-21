@@ -18,7 +18,7 @@
 
 class FTPServer {
  public:
-  FTPServer(int port = 21);
+  explicit FTPServer(int port = 21);
   void run();
   void stop();
 

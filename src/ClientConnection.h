@@ -28,7 +28,7 @@ const int MAX_BUFF = 1000;
 
 class ClientConnection {
  public:
-  ClientConnection(int s);
+  explicit ClientConnection(int s);
   ~ClientConnection();
 
   void WaitForRequests();
