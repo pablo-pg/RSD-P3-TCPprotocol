@@ -37,7 +37,7 @@ class ClientConnection {
  private:
   bool ok;  // This variable is a flag that avois that the
             // server listens if initialization errors occured.
-
+  bool passive_;
   FILE *fd;  // C file descriptor. We use it to buffer the
              // control connection of the socket and it allows to
              // manage it as a C file using fprintf, fscanf, etc.

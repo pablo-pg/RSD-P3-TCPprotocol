@@ -152,6 +152,35 @@ void ClientConnection::WaitForRequests() {
     } else if (COMMAND("PASV")) {                   /// PASV
       uint16_t port;
       uint32_t ip;
+      struct sockaddr_in pasvaddr;
+      socklen_t len;
+      int s;
+      len = sizeof(pasvaddr);
+      s = socket(AF_INET, SOCK_STREAM, 0);
+      if(s < 0) {
+        errexit("No se pudo crear el socket pasivo %s\n", strerror(errno));
+      }
+      getsockname(control_socket, (struct sockaddr*)&pasvaddr, &len);
+      pasvaddr.sin_port = 0;
+      if (bind(s, (struct sockaddr*)&pasvaddr, sizeof(pasvaddr)) < 0) {
+        close(s);
+        errexit("No se pudo hacer bind con el puerto (pasivo): %s\n",
+                strerror(errno));
+        s = -1;
+      }
+      if (listen(s, 5) < 0) {
+        errexit("Fallo en el listen: %s:(\n", strerror(errno));
+      }
+      getsockname(s, (struct sockaddr*)&pasvaddr, &len);
+      ip = ntohl(pasvaddr.sin_addr.s_addr);
+      port = ntohs(pasvaddr.sin_port);
+      std::cout << "Local bind: " << inet_ntoa(pasvaddr.sin_addr) << ":"
+                << port << std::endl;
+      data_socket = s;
+      passive_ = 1;
+      fprintf(fd, "227 Entering Passive Mode (%u,%u,%u,%u,%u,%u)\n",
+              (ip>>24)&0xff, (ip>>16)&0xff, (ip>>8)&0xff, ip&0xff,
+              (port>>8)&0xff, port&0xff);
     } else if (COMMAND("STOR")) {                   /// STOR (args = FILE)
       fscanf(fd, "%s", arg);
       char buf[MAX_BUFF];
