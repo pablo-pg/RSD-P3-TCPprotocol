@@ -4,9 +4,9 @@
  * @brief Salida de error en la implementación de FTP.
  * @version 0.1
  * @date 2021-05-21
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 
 #ifndef COMMON_H

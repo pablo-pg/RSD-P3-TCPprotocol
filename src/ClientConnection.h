@@ -4,24 +4,24 @@
  * @brief Programa cliente del protocolo FTP con sockets
  * @version 0.1
  * @date 2021-05-21
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 
 #if !defined ClientConnection_H
 #define ClientConnection_H
 
 #include <pthread.h>
-#include <experimental/filesystem>
 
 #include <cstdint>
 #include <cstdio>
-#include <sstream>
-#include <iomanip>
-#include <string>
+#include <experimental/filesystem>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
+#include <string>
 namespace fs = std::experimental::filesystem;
 
 const int MAX_BUFF = 1000;

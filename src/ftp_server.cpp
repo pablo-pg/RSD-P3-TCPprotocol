@@ -4,9 +4,9 @@
  * @brief Programa que simula un servidor TCP para el protocolo FTP
  * @version 0.1
  * @date 2021-05-21
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 
 #include <signal.h>

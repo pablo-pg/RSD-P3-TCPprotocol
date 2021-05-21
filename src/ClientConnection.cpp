@@ -142,13 +142,13 @@ void ClientConnection::WaitForRequests() {
       data_socket = connect_TCP(ip, port);
       FILE* fdata;
       fdata = fdopen(data_socket, "a+");  // a+ escribir por el final
-        if (fdata == nullptr) {
-          std::cout << "Connection closed" << std::endl;
-          fclose(fdata);
-          close(data_socket);
-          fprintf(fd, "425 Connection failed\n");
-          ok = false;
-        }
+      if (fdata == nullptr) {
+        std::cout << "Connection closed" << std::endl;
+        fclose(fdata);
+        close(data_socket);
+        fprintf(fd, "425 Connection failed\n");
+        ok = false;
+      }
       fprintf(fd, "200 PORT OK.\n");
     } else if (COMMAND("PASV")) {                   /// PASV
       uint16_t port;
@@ -183,7 +183,8 @@ void ClientConnection::WaitForRequests() {
         }
         if (write(data_socket, buf, data) < 0) {
           ok = 0;
-          fprintf(fd, "451 Requested action aborted. Local error in processing.\n");
+          fprintf(fd,
+                "451 Requested action aborted. Local error in processing.\n");
           errexit("Error al escribir el fichero %s\n", errno);
           break;
         }

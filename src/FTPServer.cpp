@@ -4,13 +4,12 @@
  * @brief Programa servidor del protocolo FTP con sockets
  * @version 0.1
  * @date 2021-05-21
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 
 #include "FTPServer.h"
-
 
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -20,15 +19,15 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <iostream>
 #include <cerrno>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
+#include <iostream>
 #include <list>
 
-#include "ClientConnection.h"
 #include "./common.h"
+#include "ClientConnection.h"
 
 int define_socket_TCP(int port) {
   // Include the code for defining the socket.
@@ -47,7 +46,7 @@ int define_socket_TCP(int port) {
   sin.sin_family = AF_INET;
   sin.sin_addr.s_addr = INADDR_ANY;
 
-  if (bind(s, (struct sockaddr*)&sin, sizeof(sin)) < 0) {
+  if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
     errexit("No se pudo hacer bind con el puerto: %s\n", strerror(errno));
   }
 
