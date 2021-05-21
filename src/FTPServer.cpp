@@ -1,15 +1,16 @@
-//****************************************************************************
-//                         REDES Y SISTEMAS DISTRIBUIDOS
-//
-//                     2º de grado de Ingeniería Informática
-//
-//                        Main class of the FTP server
-//
-//****************************************************************************
+/**
+ * @file FTPServer.cpp
+ * @author Pablo Pérez González (alu0101318318@ull.edu.es)
+ * @brief Programa servidor del protocolo FTP con sockets
+ * @version 0.1
+ * @date 2021-05-21
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 
 #include "FTPServer.h"
 
-#include <iostream>
 
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -19,6 +20,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <iostream>
 #include <cerrno>
 #include <cstdarg>
 #include <cstdio>

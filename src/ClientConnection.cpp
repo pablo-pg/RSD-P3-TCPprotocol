@@ -1,11 +1,13 @@
-//****************************************************************************
-//                         REDES Y SISTEMAS DISTRIBUIDOS
-//
-//                     2º de grado de Ingeniería Informática
-//
-//              This class processes an FTP transaction.
-//
-//****************************************************************************
+/**
+ * @file ClientConnection.cpp
+ * @author Pablo Pérez González (alu0101318318@ull.edu.es)
+ * @brief Programa cliente del protocolo FTP con sockets
+ * @version 0.1
+ * @date 2021-05-21
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 
 #include "ClientConnection.h"
 
@@ -33,7 +35,7 @@
 #include "./common.h"
 
 ClientConnection::ClientConnection(int s) {
-  int sock = (int)(s);
+  int sock = s;
 
   char buffer[MAX_BUFF];
 
@@ -60,7 +62,6 @@ ClientConnection::~ClientConnection() {
 }
 
 int connect_TCP(uint32_t address, uint16_t port) {
-  // Implement your code to define a socket here
   struct sockaddr_in sin;
   int s;
 
@@ -100,7 +101,7 @@ void ClientConnection::WaitForRequests() {
   fprintf(fd, "220 Service ready\n");
   while (!parar) {
     fscanf(fd, "%s", command);
-    if (COMMAND("USER")) {      /// USER
+    if (COMMAND("USER")) {                       /// USER
       fscanf(fd, "%s", arg);
       fprintf(fd, "331 User name ok, need password\n");
     } else if (COMMAND("PWD")) {
@@ -113,7 +114,7 @@ void ClientConnection::WaitForRequests() {
         parar = true;
       }
 
-    } else if (COMMAND("PORT")) {   /// PORT (args = HOST-PORT)
+    } else if (COMMAND("PORT")) {               /// PORT (args = HOST-PORT)
       fscanf(fd, "%s", arg);
       std::string buf;
       std::stringstream ss_arg(arg);
@@ -154,10 +155,11 @@ void ClientConnection::WaitForRequests() {
       uint32_t ip;
     } else if (COMMAND("STOR")) {                   /// STOR
       // To be implemented by students
-    } else if (COMMAND("RETR")) {                   /// RETR
+    } else if (COMMAND("RETR")) {                   /// RETR (args = FILE)
       fscanf(fd, "%s", arg);
       char buf[MAX_BUFF];
       int retr_fd;
+      int data;
       bool ok = 1;  //< Comprobación de transmisión.
       FILE* fdata;
       fdata = fdopen(data_socket, "a+");  // a+ escribir por el final
@@ -169,7 +171,6 @@ void ClientConnection::WaitForRequests() {
       }
       fprintf(fd, "150 File status okay; about to open data connection\n");
       fflush(fd);
-      int data;
       do {
         data = read(retr_fd, buf, sizeof(buf));
         std::cout << data << " bytes leídos" << std::endl;
@@ -182,6 +183,7 @@ void ClientConnection::WaitForRequests() {
         }
         if (write(data_socket, buf, data) < 0) {
           ok = 0;
+          fprintf(fd, "451 Requested action aborted. Local error in processing.\n");
           errexit("Error al escribir el fichero %s\n", errno);
           break;
         }
@@ -201,7 +203,6 @@ void ClientConnection::WaitForRequests() {
       }
       fflush(fd);
     } else if (COMMAND("LIST")) {                     /// LIST
-
       fprintf(fd, "125 List started OK.\n");
       FILE* fdata;
       fdata = fdopen(data_socket, "a+");  // a+ escribir por el final

@@ -1,4 +1,9 @@
-
+# Makefile para la elaboración de un servidor con sockets.
+# Opciones:
+# * make: compila
+# * make run: compila y ejecuta
+# * make clean: borra los archivos binarios
+# * make clear: borra los archivos binarios
 
 all: ftp_server
 

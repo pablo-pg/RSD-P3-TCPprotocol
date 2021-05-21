@@ -1,3 +1,14 @@
+/**
+ * @file ftp_server.cpp
+ * @author Pablo Pérez González (alu0101318318@ull.edu.es)
+ * @brief Programa que simula un servidor TCP para el protocolo FTP
+ * @version 0.1
+ * @date 2021-05-21
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
+
 #include <signal.h>
 
 #include <iostream>

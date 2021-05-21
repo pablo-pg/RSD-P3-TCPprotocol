@@ -1,3 +1,14 @@
+/**
+ * @file ClientConnection.cpp
+ * @author Pablo Pérez González (alu0101318318@ull.edu.es)
+ * @brief Programa cliente del protocolo FTP con sockets
+ * @version 0.1
+ * @date 2021-05-21
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
+
 #if !defined ClientConnection_H
 #define ClientConnection_H
 
