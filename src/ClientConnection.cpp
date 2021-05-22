@@ -157,7 +157,7 @@ void ClientConnection::WaitForRequests() {
       int s;
       len = sizeof(pasvaddr);
       s = socket(AF_INET, SOCK_STREAM, 0);
-      if(s < 0) {
+      if (s < 0) {
         errexit("No se pudo crear el socket pasivo %s\n", strerror(errno));
       }
       getsockname(control_socket, (struct sockaddr*)&pasvaddr, &len);
@@ -183,6 +183,12 @@ void ClientConnection::WaitForRequests() {
               (port>>8)&0xff, port&0xff);
     } else if (COMMAND("STOR")) {                   /// STOR (args = FILE)
       fscanf(fd, "%s", arg);
+      if (passive_) {
+        struct sockaddr_in fsin;
+        socklen_t alen;
+        alen = sizeof(fsin);
+        data_socket = accept(data_socket, (struct sockaddr *)&fsin, &alen);
+      }
       char buf[MAX_BUFF];
       int stor_fd;
       int data;
@@ -229,17 +235,25 @@ void ClientConnection::WaitForRequests() {
       fflush(fd);
     } else if (COMMAND("RETR")) {                   /// RETR (args = FILE)
       fscanf(fd, "%s", arg);
+      FILE* fdata;
+      if (passive_) {
+        struct sockaddr_in fsin;
+        socklen_t alen;
+        alen = sizeof(fsin);
+        data_socket = accept(data_socket, (struct sockaddr *)&fsin, &alen);
+      }
       char buf[MAX_BUFF];
       int retr_fd;
       int data;
       bool ok = 1;  //< Comprobación de transmisión.
-      FILE* fdata;
       fdata = fdopen(data_socket, "a+");  // a+ escribir por el final
       std::cout << "FILE TO GET: " << arg << std::endl;
       retr_fd = open(arg, O_RDWR|O_CREAT, S_IRWXU);
       if (retr_fd < 0) {
-        std::cout << "Error al abrir el fichero" << std::endl;
         fprintf(fd, "550 open error\n");
+        ok = 0;
+        // std::cout << "Error al abrir el fichero" << std::endl;
+        // errexit("Error al abrir el fichero: %d", errno);
       }
       fprintf(fd, "150 File status okay; about to open data connection\n");
       fflush(fd);
@@ -277,6 +291,12 @@ void ClientConnection::WaitForRequests() {
       fflush(fd);
     } else if (COMMAND("LIST")) {                     /// LIST
       fprintf(fd, "125 List started OK.\n");
+      if (passive_) {
+        struct sockaddr_in fsin;
+        socklen_t alen;
+        alen = sizeof(fsin);
+        data_socket = accept(data_socket, (struct sockaddr *)&fsin, &alen);
+      }
       FILE* fdata;
       fdata = fdopen(data_socket, "a+");  // a+ escribir por el final
       std::string str_curdir;
