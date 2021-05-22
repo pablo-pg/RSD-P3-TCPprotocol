@@ -248,7 +248,7 @@ void ClientConnection::WaitForRequests() {
       bool ok = 1;  //< Comprobación de transmisión.
       fdata = fdopen(data_socket, "a+");  // a+ escribir por el final
       std::cout << "FILE TO GET: " << arg << std::endl;
-      retr_fd = open(arg, O_RDWR|O_CREAT, S_IRWXU);
+      retr_fd = open(arg, O_RDWR, S_IRWXU);
       if (retr_fd < 0) {
         fprintf(fd, "550 open error\n");
         ok = 0;
@@ -266,19 +266,22 @@ void ClientConnection::WaitForRequests() {
           } else {
             ok = 0;
           }
-        }
-        if (write(data_socket, buf, data) < 0) {
-          ok = 0;
-          fprintf(fd,
-                "451 Requested action aborted. Local error in processing.\n");
-          errexit("Error al escribir el fichero %s\n", errno);
-          break;
+        } else {
+          if (write(data_socket, buf, data) < 0) {
+            ok = 0;
+            fprintf(fd,
+                  "451 Requested action aborted. Local error in processing.\n");
+            errexit("Error al escribir el fichero %s\n", errno);
+            break;
+          }
         }
       } while (data > 0);
       // close(data_socket);
       fclose(fdata);
       if (close(retr_fd) < 0) {
-        errexit("Error closing the file.", errno);
+        // errexit("Error closing the file.", errno);
+        std::cout << "No se pudo cerrar el socket del fichero." << std::endl;
+        close(data_socket);
       }
       fflush(fd);
       if (ok) {
