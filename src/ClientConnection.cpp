@@ -4,9 +4,9 @@
  * @brief Programa cliente del protocolo FTP con sockets
  * @version 0.1
  * @date 2021-05-21
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 
 #include "ClientConnection.h"
@@ -118,7 +118,7 @@ void ClientConnection::WaitForRequests() {
       std::string buf;
       std::stringstream ss_arg(arg);
       int values[6];
-      for (int  i = 0; i < 6; ++i) {
+      for (int i = 0; i < 6; ++i) {
         std::getline(ss_arg, buf, ',');
         values[i] = std::stoi(buf);
       }
@@ -174,20 +174,20 @@ void ClientConnection::WaitForRequests() {
       getsockname(s, (struct sockaddr*)&pasvaddr, &len);
       ip = ntohl(pasvaddr.sin_addr.s_addr);
       port = ntohs(pasvaddr.sin_port);
-      std::cout << "Local bind: " << inet_ntoa(pasvaddr.sin_addr) << ":"
-                << port << std::endl;
+      std::cout << "Local bind: " << inet_ntoa(pasvaddr.sin_addr) << ":" << port
+                << std::endl;
       data_socket = s;
       passive_ = 1;
       fprintf(fd, "227 Entering Passive Mode (%u,%u,%u,%u,%u,%u)\n",
-              (ip>>24)&0xff, (ip>>16)&0xff, (ip>>8)&0xff, ip&0xff,
-              (port>>8)&0xff, port&0xff);
+              (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff,
+              (port >> 8) & 0xff, port & 0xff);
     } else if (COMMAND("STOR")) {                   /// STOR (args = FILE)
       fscanf(fd, "%s", arg);
       if (passive_) {
         struct sockaddr_in fsin;
         socklen_t alen;
         alen = sizeof(fsin);
-        data_socket = accept(data_socket, (struct sockaddr *)&fsin, &alen);
+        data_socket = accept(data_socket, (struct sockaddr*)&fsin, &alen);
       }
       char buf[MAX_BUFF];
       int stor_fd;
@@ -196,7 +196,7 @@ void ClientConnection::WaitForRequests() {
       FILE* fdata;
       fdata = fdopen(data_socket, "a+");
       std::cout << "FILE TO PUT: " << arg << std::endl;
-      stor_fd = open(arg, O_RDWR|O_CREAT, S_IRWXU);
+      stor_fd = open(arg, O_RDWR | O_CREAT, S_IRWXU);
       if (stor_fd < 0) {
         std::cout << "Error al abrir el fichero" << std::endl;
         fprintf(fd, "550 open error\n");
@@ -216,11 +216,11 @@ void ClientConnection::WaitForRequests() {
         if (write(stor_fd, buf, data) < 0) {
           ok = 0;
           fprintf(fd,
-                "451 Requested action aborted. Local error in processing.\n");
+                  "451 Requested action aborted. Local error in processing.\n");
           errexit("Error al escribir el fichero %s\n", errno);
           break;
         }
-      }while(data > 0);
+      } while (data > 0);
       fclose(fdata);
       close(stor_fd);
       close(data_socket);
@@ -240,12 +240,12 @@ void ClientConnection::WaitForRequests() {
         struct sockaddr_in fsin;
         socklen_t alen;
         alen = sizeof(fsin);
-        data_socket = accept(data_socket, (struct sockaddr *)&fsin, &alen);
+        data_socket = accept(data_socket, (struct sockaddr*)&fsin, &alen);
       }
       char buf[MAX_BUFF];
       int retr_fd;
       int data;
-      bool ok = 1;  //< Comprobación de transmisión.
+      bool ok = 1;                        //< Comprobación de transmisión.
       fdata = fdopen(data_socket, "a+");  // a+ escribir por el final
       std::cout << "FILE TO GET: " << arg << std::endl;
       retr_fd = open(arg, O_RDWR, S_IRWXU);
@@ -269,8 +269,9 @@ void ClientConnection::WaitForRequests() {
         } else {
           if (write(data_socket, buf, data) < 0) {
             ok = 0;
-            fprintf(fd,
-                  "451 Requested action aborted. Local error in processing.\n");
+            fprintf(
+                fd,
+                "451 Requested action aborted. Local error in processing.\n");
             errexit("Error al escribir el fichero %s\n", errno);
             break;
           }
@@ -298,7 +299,7 @@ void ClientConnection::WaitForRequests() {
         struct sockaddr_in fsin;
         socklen_t alen;
         alen = sizeof(fsin);
-        data_socket = accept(data_socket, (struct sockaddr *)&fsin, &alen);
+        data_socket = accept(data_socket, (struct sockaddr*)&fsin, &alen);
       }
       FILE* fdata;
       fdata = fdopen(data_socket, "a+");  // a+ escribir por el final
