@@ -174,7 +174,7 @@ void ClientConnection::WaitForRequests() {
       getsockname(s, (struct sockaddr*)&pasvaddr, &len);
       ip = ntohl(pasvaddr.sin_addr.s_addr);
       port = ntohs(pasvaddr.sin_port);
-      std::cout << "Local bind: " << inet_ntoa(pasvaddr.sin_addr) << ":" << port
+      std::cout << "Local bind: " << inet_ntoa(pasvaddr.sin_addr) << "-" << port
                 << std::endl;
       data_socket = s;
       passive_ = 1;
@@ -310,7 +310,7 @@ void ClientConnection::WaitForRequests() {
       str_curdir = curdir;
       fcntl(data_socket, F_SETFL, O_NONBLOCK);
       for (const auto& file : fs::directory_iterator(str_curdir)) {
-        fprintf(fdata, "%s\n", file.path().filename().string().data());
+        fprintf(fdata, "%s\r\n", file.path().filename().string().data());
         fflush(fd);
         fflush(fdata);
       }
